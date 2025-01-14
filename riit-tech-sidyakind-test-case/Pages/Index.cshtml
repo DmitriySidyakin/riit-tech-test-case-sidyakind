@@ -8,8 +8,98 @@
 
 @section scripts {
 <script asp-append-version="true" language="javascript">
+        var serviceUrl = "http://localhost:5000/";
+    
+        function getEquipmentTypes() {
+            return [{ Id: 1, Name: "Не удалось получить список данных. Произошла ошибка!" }];
+        }        
 
+        $(function () {
+            var equipmentTypes = getEquipmentTypes();
 
+            $("#dataGrid").dxDataGrid({
+                dataSource: new DevExpress.data.CustomStore({
+                    key: "Id",
+                    load: function (loadOptions) {
+                        console.log(loadOptions)
+                        return $.get(serviceUrl + 'ComputerEquipmentController/', loadOptions).then(function (response) {
+                            return response.data;
+                        })
+                    },
+                    insert: function (values) {
+                        var deferred = $.Deferred();
+                        $.ajax({
+                            url: serviceUrl + "ComputerEquipmentController/Create",
+                            method: "POST",
+                            data: JSON.stringify(values)
+                        })
+                            .done(deferred.resolve)
+                            .fail(function (e) {
+                                deferred.reject("Insertion failed");
+                            });
+                        return deferred.promise();
+                    },
+                    remove: function (key) {
+                        /*var deferred = $.Deferred();
+                        $.ajax({
+                            url: serviceUrl + "ComputerEquipmentController/Delete/" + encodeURIComponent(key),
+                            method: "POST"
+                        })
+                            .done(deferred.resolve)
+                            .fail(function (e) {
+                                deferred.reject("Deletion failed");
+                            };
+                        return deferred.promise();*/
+                    },
+                    update: function (key, values) {/*
+                        var deferred = $.Deferred();
+                        $.ajax({
+                            url: serviceUrl + "ComputerEquipmentController/Edit/" + encodeURIComponent(key),
+                            method: "POST",
+                            data: JSON.stringify(values)
+                        })
+                            .done(deferred.resolve)
+                            .fail(function (e) {
+                                deferred.reject("Update failed");
+                            };
+                        return deferred.promise();*/
+                    }
+                }),
+                remoteOperations: { groupPaging: true },
+                editing: {
+                    mode: "popup",
+                    allowUpdating: true,
+                    allowDeleting: true,
+                    allowAdding: true,
+                },
+                columns: [{
+                    dataField: "AccountNumber",
+                    caption: "Учетный номер",
+                }, {
+                    dataField: "EquipmentTypeId",
+                    caption: "Тип техники",
+                    lookup: {
+                        dataSource: equipmentTypes,
+                        displayExpr: 'Name',
+                        valueExpr: 'Id',
+                    },
+                }, {
+                    dataField: "Name",
+                    caption: "Наименование",
+                }, {
+                    dataField: "AccommodationRoom",
+                    caption: "Комната размещения",
+                }
+                ],
+                allowColumnReordering: true,
+                allowColumnResizing: true,
+                columnAutoWidth: true,
+                selection: { mode: "single" },
+
+            });
+        });
+
+        
 
 </script>
 }

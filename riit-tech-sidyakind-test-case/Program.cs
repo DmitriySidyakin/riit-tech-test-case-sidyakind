@@ -28,6 +28,8 @@ namespace riit_tech_sidyakind_test_case
 
             app.MapRazorPages();
 
+
+
             app.Run();
         }
     }
